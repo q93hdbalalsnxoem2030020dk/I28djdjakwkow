@@ -1,0 +1,85 @@
+getgenv().temu = { -- // temu.scam
+    ["Settings"] = {
+        Intro = true,
+        AutoMuteBoomBox = true,
+        AutoLowGFX = true,
+        Notification_System = "roblox",
+        Fps_Cap = 999,
+        Mobile_Version = true,
+    },
+    ["Cam Cock"] = {
+        Enabled = true,
+        Prediction = 0.17,
+        Key_bind = "Q",                        -- // Mousebutton2 = Left click
+        Hit_Part = "HumanoidRootPart",         -- // Mousebutton1 = Right click
+        Notify = true,
+        Sticky_Aim = true,
+        Smoothness = true,
+        Smoothness_amount = 0.2,
+        Shake = true,
+        Shake_Amount = 0.34,
+        Use_Fov = false,
+        Mode = "toggle",
+    },
+    ["Target Aim"] = {
+        Enabled = true,
+        Prediction_Amount = 0.1652,
+        Key_bind = Enum.KeyCode.E,
+        Hit_Part = "HumanoidRootPart",
+        Notify = true,
+        Use_Fov = false,
+    },
+    ["Silent Aim"] = {
+        Enabled = false,
+        Prediction_Amount = 0.18172,
+        Key_Bind = Enum.KeyCode.B,
+        Hit_Part = "HumanoidRootPart",
+        Notify = true,
+        Use_Fov = true, -- // making it false will disable the silent
+    },
+    ["Field Of view"] = {
+        ["Cam Cock"] = {
+            Visible = false,
+            Size = 20,
+            Transparency = 0.75,
+            Thickness = 1,
+            Filled = false,
+            Color = Color3.fromRGB(255, 255, 255),
+        },
+        ["Target Aim"] = {
+            Visible = false,
+            Size = 50,
+            Transparency = 0.75,
+            Thickness = 1,
+            Filled = false,
+            Color = Color3.fromRGB(255, 255, 255),
+        },
+        ["Silent Aim"] = {
+            Visible = true,
+            Size = 170,
+            Transparency = 1,
+            Thickness = 1,
+            Filled = true,
+            Color = Color3.fromRGB(255, 255, 255),
+        },
+    },
+    ["Panic Button"] = {
+        Enabled = true,
+        Key_bind = Enum.KeyCode.P,
+    },
+    ["Inventory Sorter"] = { -- // buggy ash, dont use
+        Enabled = true,
+        Key_Bind = Enum.KeyCode.V,
+        Slots = {"Double Barrel SG", "Revolver", "Tactical Shotgun", "Knife"},
+    },
+    ["CFrame"] = {
+        Enabled = true,
+        Keybind = Enum.KeyCode.Z,
+        Amount = 4, -- // wouldn't recommend going over 6
+    },
+    ["Misc"] = {
+        No_Jump_cooldown = true,
+        No_slowdown = true,
+    },
+}
+loadstring(game:HttpGet("https://raw.githubusercontent.com/4xdh/temu/main/loader"))()
