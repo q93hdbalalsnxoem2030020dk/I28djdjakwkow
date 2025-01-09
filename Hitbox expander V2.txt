@@ -1,0 +1,270 @@
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Crear la GUI principal
+local ScreenGui = Instance.new("ScreenGui")
+local main = Instance.new("Frame")
+local label = Instance.new("TextLabel")
+local HitboxButton, CloseButton, MinimizeButton, MaximizeButton
+local HitboxSizeSlider = Instance.new("Frame")
+local SliderButton = Instance.new("TextButton")
+local SliderLabel = Instance.new("TextLabel")
+
+ScreenGui.Parent = game.CoreGui
+
+-- Configuración de la interfaz principal
+main.Name = "main"
+main.Parent = ScreenGui
+main.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+main.Position = UDim2.new(0.35, 0, 0.32, 0)
+main.Size = UDim2.new(0, 400, 0, 250)
+main.Active = true
+main.Draggable = true
+main.BorderSizePixel = 0
+main.BackgroundTransparency = 0.1
+main.ClipsDescendants = true
+
+-- Suavizar bordes
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = main
+
+-- Configuración de la etiqueta
+label.Name = "label"
+label.Parent = main
+label.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+label.Size = UDim2.new(1, 0, 0, 30)
+label.Font = Enum.Font.SourceSansBold
+label.Text = "Hitbox GUI"
+label.TextColor3 = Color3.fromRGB(255, 255, 255)
+label.TextScaled = true
+label.TextWrapped = true
+label.BorderSizePixel = 0
+
+-- Función para crear botones con estilo
+local function createButton(name, position, text, backgroundColor, textColor)
+    local button = Instance.new("TextButton")
+    button.Name = name
+    button.Parent = main
+    button.BackgroundColor3 = backgroundColor
+    button.Position = position
+    button.Size = UDim2.new(0, 130, 0, 40)
+    button.Font = Enum.Font.SourceSans
+    button.Text = text
+    button.TextColor3 = textColor
+    button.TextSize = 24
+    button.BorderSizePixel = 0
+    button.BackgroundTransparency = 0.2
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 10)
+    corner.Parent = button
+
+    -- Efecto de hover
+    button.MouseEnter:Connect(function() button.BackgroundColor3 = Color3.fromRGB(100, 100, 100) end)
+    button.MouseLeave:Connect(function() button.BackgroundColor3 = backgroundColor end)
+
+    return button
+end
+
+-- Crear botones
+HitboxButton = createButton("HitboxButton", UDim2.new(0.6, 0, 0.5, 0), "Hitbox On", Color3.fromRGB(255, 255, 255), Color3.fromRGB(0, 0, 0))
+MinimizeButton = createButton("MinimizeButton", UDim2.new(0.1, 0, 0.75, 0), "Minimize", Color3.fromRGB(255, 255, 255), Color3.fromRGB(0, 0, 0))
+CloseButton = createButton("CloseButton", UDim2.new(0.6, 0, 0.75, 0), "Close", Color3.fromRGB(255, 255, 255), Color3.fromRGB(0, 0, 0))
+MaximizeButton = createButton("MaximizeButton", UDim2.new(0.5, -65, 0.8, 0), "Maximize", Color3.fromRGB(100, 100, 100), Color3.fromRGB(255, 0, 0))
+MaximizeButton.Visible = false -- Empieza oculto
+
+-- Configuración del slider para el tamaño del hitbox
+HitboxSizeSlider.Name = "HitboxSizeSlider"
+HitboxSizeSlider.Parent = main
+HitboxSizeSlider.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+HitboxSizeSlider.Position = UDim2.new(0.1, 0, 0.5, 0)
+HitboxSizeSlider.Size = UDim2.new(0, 180, 0, 20)
+
+SliderButton.Name = "SliderButton"
+SliderButton.Parent = HitboxSizeSlider
+SliderButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+SliderButton.Size = UDim2.new(0, 20, 1, 0)
+SliderButton.Text = ""
+
+SliderLabel.Name = "SliderLabel"
+SliderLabel.Parent = main
+SliderLabel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+SliderLabel.Position = UDim2.new(0.1, 0, 0.6, 0)
+SliderLabel.Size = UDim2.new(0, 180, 0, 30)
+SliderLabel.Font = Enum.Font.SourceSansBold
+SliderLabel.Text = "Hitbox Size: 2"
+SliderLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+SliderLabel.TextScaled = true
+SliderLabel.BorderSizePixel = 1
+
+local hitboxActive = false
+local hitboxSize = 2
+local hitboxTransparency = 0.0
+local applyHitboxConnection
+
+-- Configuración del slider para la transparencia del hitbox
+local TransparencySlider = Instance.new("Frame")
+local TransparencySliderButton = Instance.new("TextButton")
+local TransparencyLabel = Instance.new("TextLabel")
+
+TransparencySlider.Name = "TransparencySlider"
+TransparencySlider.Parent = main
+TransparencySlider.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+TransparencySlider.Position = UDim2.new(0.1, 0, 0.2, 0) -- Cambia la posición según sea necesario
+TransparencySlider.Size = UDim2.new(0, 180, 0, 20)
+
+TransparencySliderButton.Name = "TransparencySliderButton"
+TransparencySliderButton.Parent = TransparencySlider
+TransparencySliderButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TransparencySliderButton.Size = UDim2.new(0, 20, 1, 0)
+TransparencySliderButton.Text = ""
+
+TransparencyLabel.Name = "TransparencyLabel"
+TransparencyLabel.Parent = main
+TransparencyLabel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+TransparencyLabel.Position = UDim2.new(0.1, 0, 0.3, 0) -- Ajusta la posición según sea necesario
+TransparencyLabel.Size = UDim2.new(0, 180, 0, 30)
+TransparencyLabel.Font = Enum.Font.SourceSansBold
+TransparencyLabel.Text = "Transparency: 0.0"
+TransparencyLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TransparencyLabel.TextScaled = true
+TransparencyLabel.BorderSizePixel = 1
+
+
+-- Función para actualizar la transparencia del hitbox usando el slider
+local function updateHitboxTransparency(newTransparency)
+    hitboxTransparency = newTransparency
+    TransparencyLabel.Text = "Transparency: " .. string.format("%.1f", hitboxTransparency)
+end
+
+-- Conexión para arrastrar el slider de transparencia
+local draggingTransparencySlider = false
+TransparencySliderButton.MouseButton1Down:Connect(function() draggingTransparencySlider = true end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        draggingTransparencySlider = false
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if draggingTransparencySlider and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local mouseX = UserInputService:GetMouseLocation().X
+        local sliderX = TransparencySlider.AbsolutePosition.X
+        local sliderWidth = TransparencySlider.AbsoluteSize.X
+        local newTransparency = math.clamp(((mouseX - sliderX) / sliderWidth), 0, 1)
+        TransparencySliderButton.Position = UDim2.new(newTransparency, 0, 0, 0)
+        updateHitboxTransparency(math.floor(newTransparency * 10) / 10)
+    end
+end)
+
+-- Función para aplicar hitbox a los jugadores
+local function applyHitbox()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local humanoidRootPart = player.Character.HumanoidRootPart
+            humanoidRootPart.Size = Vector3.new(hitboxSize, hitboxSize, hitboxSize)
+            humanoidRootPart.Transparency = hitboxTransparency
+            humanoidRootPart.BrickColor = BrickColor.new("Really Blue")
+            humanoidRootPart.Material = Enum.Material.Neon
+            humanoidRootPart.CanCollide = true
+        end
+    end
+end
+
+-- Función para restaurar el hitbox a su tamaño original
+local function resetHitbox()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local humanoidRootPart = player.Character.HumanoidRootPart
+            humanoidRootPart.Size = Vector3.new(2, 2, 2)
+            humanoidRootPart.Transparency = 1
+            humanoidRootPart.BrickColor = BrickColor.new("Medium stone grey")
+            humanoidRootPart.Material = Enum.Material.SmoothPlastic
+            humanoidRootPart.CanCollide = true
+        end
+    end
+end
+
+-- Función para actualizar el tamaño del hitbox usando el slider
+local function updateHitboxSize(newSize)
+    hitboxSize = newSize
+    SliderLabel.Text = "Hitbox Size: " .. tostring(hitboxSize)
+end
+
+-- Conexión para arrastrar el slider
+local draggingSlider = false
+SliderButton.MouseButton1Down:Connect(function() draggingSlider = true end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        draggingSlider = false
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if draggingSlider and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local mouseX = UserInputService:GetMouseLocation().X
+        local sliderX = HitboxSizeSlider.AbsolutePosition.X
+        local sliderWidth = HitboxSizeSlider.AbsoluteSize.X
+        local newSize = math.clamp(math.floor(((mouseX - sliderX) / sliderWidth) * 99) + 2, 2, 100)
+        SliderButton.Position = UDim2.new(newSize / 100, 0, 0, 0)
+        updateHitboxSize(newSize)
+    end
+end)
+
+-- Conexión para activar y desactivar el hitbox
+HitboxButton.MouseButton1Down:Connect(function()
+    hitboxActive = not hitboxActive
+    if hitboxActive then
+        applyHitboxConnection = game:GetService('RunService').RenderStepped:Connect(applyHitbox)
+        HitboxButton.Text = "Hitbox Off"
+    else
+       if applyHitboxConnection then
+            applyHitboxConnection:Disconnect()
+            resetHitbox()
+        end
+        HitboxButton.Text = "Hitbox On"
+    end
+end)
+
+-- Función de animación para minimizar o maximizar la GUI
+local function animateGui(targetSize, showMaximizeButton)
+    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
+    local tween = TweenService:Create(main, tweenInfo, {Size = targetSize})
+    tween:Play()
+
+    HitboxButton.Visible = showMaximizeButton
+    CloseButton.Visible = showMaximizeButton
+    MinimizeButton.Visible = showMaximizeButton
+    HitboxSizeSlider.Visible = showMaximizeButton
+    SliderLabel.Visible = showMaximizeButton
+    TransparencyLabel.Visible = showMaximizeButton
+    TransparencySlider.Visible = showMaximizeButton
+    MaximizeButton.Visible = not showMaximizeButton
+end
+
+-- Conexión para minimizar la GUI
+MinimizeButton.MouseButton1Down:Connect(function()
+    animateGui(UDim2.new(0, 200, 0, 30), false) -- Tamaño minimizado
+end)
+
+-- Conexión para maximizar la GUI
+MaximizeButton.MouseButton1Down:Connect(function()
+    animateGui(UDim2.new(0, 400, 0, 250), true) -- Tamaño original
+end)
+
+-- Conexión del botón de cerrar
+CloseButton.MouseButton1Down:Connect(function()
+    -- Desconectar cualquier conexión activa, como `applyHitboxConnection`
+    if applyHitboxConnection then
+        applyHitboxConnection:Disconnect()
+        resetHitbox() -- Restaurar el hitbox al cerrar
+    end
+
+    -- Destruir la GUI
+    ScreenGui:Destroy()
+end)
