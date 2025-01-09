@@ -1,0 +1,4 @@
+_G.Size = 25 -- // Recommended Size
+_G.Key = Enum.KeyCode.Q -- // Keybind
+
+loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/b43137ce06f135c4e6c9760ce1c39474.lua"))()
