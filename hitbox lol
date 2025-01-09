@@ -1,0 +1,22 @@
+for index, player in pairs(Game:GetService("Players"):GetPlayers()) do
+    local localPlayer = Game:GetService("Players").LocalPlayer
+    local localCharacter = localPlayer.Character
+    local playerCharacter = player.Character
+
+    if player ~= localPlayer and playerCharacter and 
+       playerCharacter:FindFirstChild("HumanoidRootPart") and 
+       playerCharacter:FindFirstChildOfClass("Humanoid") and 
+       playerCharacter:FindFirstChildOfClass("Humanoid").Health > 2.5 and 
+       localCharacter and 
+       localCharacter:FindFirstChild("HumanoidRootPart") then
+
+        local TargetHumanoidRootPart = playerCharacter:FindFirstChild("HumanoidRootPart")
+        
+        -- Hitbox Settings
+        TargetHumanoidRootPart.CanCollide = false -- dont turn this on
+        TargetHumanoidRootPart.Color = Color3.new(0, 0, 0) -- the hitbox color
+        TargetHumanoidRootPart.Material = Enum.Material.SmoothPlastic -- meterial, u can use plastic,neon and more
+        TargetHumanoidRootPart.Size = Vector3.new(50, 50, 50) -- the hitbox size add less if it lags if it doesnt then add more or keep it like that.
+        TargetHumanoidRootPart.Transparency = 1 -- the hitbox transparency make it 0 to see it
+    end
+end
