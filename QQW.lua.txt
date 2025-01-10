@@ -1,0 +1,158 @@
+-- config
+local QQW = getgenv().QQW or {}
+
+QQW.HitboxExpander = QQW.HitboxExpander or {
+    Size = Vector3.new(15, 15, 15),
+}
+
+QQW.Visual = QQW.Visual or {
+    Box = {
+        Color = Color3.fromRGB(128, 0, 128),
+        Transparency = 0.5,
+        OutlineColor = Color3.fromRGB(255, 255, 255),
+    },
+    Highlight = {
+        Color = Color3.fromRGB(0, 255, 0),
+        OutlineColor = Color3.fromRGB(255, 255, 255),
+    },
+}
+
+-- main script bitch
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+local function notify_prs(message)
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0.5, 0, 0.1, 0)
+    frame.Position = UDim2.new(0.5, 0, -0.1, 0)
+    frame.BackgroundColor3 = Color3.new(0, 0, 0)
+    frame.BorderSizePixel = 0 
+    frame.AnchorPoint = Vector2.new(0.5, 0.5)
+    frame.Parent = screenGui
+    
+    local uicorner = Instance.new("UICorner")
+    uicorner.CornerRadius = UDim.new(0.5, 0)
+    uicorner.Parent = frame
+    
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.Position = UDim2.new(0, 0, 0, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.Text = message
+    textLabel.TextColor3 = Color3.new(1, 1, 1)
+    textLabel.TextScaled = true
+    textLabel.Font = Enum.Font.SciFi
+    textLabel.TextSize = 14
+    textLabel.Parent = frame
+    
+    local textBlur = Instance.new("TextLabel")
+    textBlur.Size = UDim2.new(1, 0, 1, 0)
+    textBlur.Position = UDim2.new(0, 0, 0, 0)
+    textBlur.BackgroundTransparency = 1
+    textBlur.Text = message
+    textBlur.TextColor3 = Color3.new(1, 1, 1)
+    textBlur.TextScaled = true
+    textBlur.Font = Enum.Font.SciFi
+    textBlur.TextSize = 14
+    textBlur.TextTransparency = 0.5
+    textBlur.Parent = frame
+    textBlur.ZIndex = textLabel.ZIndex - 1
+    textBlur.TextStrokeTransparency = 0.75
+    
+    frame:TweenPosition(UDim2.new(0.5, 0, 0.1, 0), "Out", "Quad", 1, true)
+    wait(5)
+    
+    for i = 0, 1, 0.1 do
+        frame.BackgroundTransparency = i
+        textLabel.TextTransparency = i
+        textBlur.TextTransparency = 0.5 + i / 2
+        wait(0.1)
+    end
+    
+    screenGui:Destroy()
+end
+
+notify_prs("sxc_qq1 the nigga")
+
+local function notify(title, text, duration)
+    game.StarterGui:SetCore("SendNotification", {
+        Title = title,
+        Text = text,
+        Duration = duration or 5,
+    })
+end
+
+local function isNigga_supported()
+    local success, _ = pcall(function()
+        local testPlayer = Players:GetPlayers()[1]
+        if testPlayer and testPlayer.Character and testPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            return true
+        end
+    end)
+    return success
+end
+
+local function isFacing(target)
+    local direction = (target.Position - Camera.CFrame.Position).Unit
+    local lookVector = Camera.CFrame.LookVector
+    return direction:Dot(lookVector) > 0.9
+end
+
+local function applyHitbox(player)
+    local character = player.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        local rootPart = character.HumanoidRootPart
+
+        rootPart.Size = QQW.HitboxExpander.Size
+        rootPart.Transparency = QQW.Visual.Box.Transparency
+        rootPart.Color = QQW.Visual.Box.Color
+        rootPart.Material = Enum.Material.ForceField
+        rootPart.CanCollide = false
+
+        if not rootPart:FindFirstChildOfClass("BoxHandleAdornment") then
+            local box = Instance.new("BoxHandleAdornment")
+            box.Adornee = rootPart
+            box.Size = QQW.HitboxExpander.Size
+            box.Color3 = QQW.Visual.Box.OutlineColor
+            box.Transparency = 0
+            box.ZIndex = 2
+            box.AlwaysOnTop = true
+            box.Parent = rootPart
+        end
+
+        local highlight = Instance.new("Highlight", rootPart)
+        highlight.FillColor = QQW.Visual.Highlight.Color
+        highlight.OutlineColor = QQW.Visual.Highlight.OutlineColor
+    end
+end
+
+RunService.RenderStepped:Connect(function()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local rootPart = player.Character.HumanoidRootPart
+            if isFacing(rootPart) then
+                applyHitbox(player)
+            else
+                rootPart.Size = Vector3.new(2, 2, 1)
+                if rootPart:FindFirstChildOfClass("Highlight") then
+                    rootPart:FindFirstChildOfClass("Highlight"):Destroy()
+                end
+                if rootPart:FindFirstChildOfClass("BoxHandleAdornment") then
+                    rootPart:FindFirstChildOfClass("BoxHandleAdornment"):Destroy()
+                end
+            end
+        end
+    end
+end)
+
+if isNigga_supported() then
+    notify("Game Supported", "Hitbox expansion is supported in this game.", 5)
+else
+    notify("Game Not Supported", "Hitbox expansion is not supported in this game.", 5)
+end
