@@ -1,0 +1,376 @@
+local MacLib = loadstring(game:HttpGet("https://github.com/biggaboy212/Maclib/releases/latest/download/maclib.txt"))()
+
+local Window = MacLib:Window({
+	Title = "Solstice Client 6.1.0",
+	Subtitle = "[🍀X50] Anime Card Master",
+	Size = UDim2.fromOffset(668, 552),
+	DragStyle = 2,
+	DisabledWindowControls = {},
+	ShowUserInfo = true,
+	Keybind = Enum.KeyCode.LeftControl,
+	AcrylicBlur = true,
+})
+
+-- Global Variables
+local CardNumber = ""  -- Initialize as an empty string
+local CardAmount = -1  -- Default value for Card Amount
+
+-- Global settings for UI
+local globalSettings = {
+	UIBlurToggle = Window:GlobalSetting({
+		Name = "UI Blur",
+		Default = Window:GetAcrylicBlurState(),
+		Callback = function(bool)
+			Window:SetAcrylicBlurState(bool)
+			Window:Notify({
+				Title = Window.Settings.Title,
+				Description = (bool and "Enabled" or "Disabled") .. " UI Blur",
+				Lifetime = 5
+			})
+		end,
+	}),
+	NotificationToggler = Window:GlobalSetting({
+		Name = "Notifications",
+		Default = Window:GetNotificationsState(),
+		Callback = function(bool)
+			Window:SetNotificationsState(bool)
+			Window:Notify({
+				Title = Window.Settings.Title,
+				Description = (bool and "Enabled" or "Disabled") .. " Notifications",
+				Lifetime = 5
+			})
+		end,
+	}),
+	ShowUserInfo = Window:GlobalSetting({
+		Name = "Show User Info",
+		Default = Window:GetUserInfoState(),
+		Callback = function(bool)
+			Window:SetUserInfoState(bool)
+			Window:Notify({
+				Title = Window.Settings.Title,
+				Description = (bool and "Showing" or "Redacted") .. " User Info",
+				Lifetime = 5
+			})
+		end,
+	})
+}
+
+local tabGroups = {
+	Main = Window:TabGroup(),
+	Extra = Window:TabGroup()
+}
+
+local tabs = {
+	Dupe = tabGroups.Main:Tab({ Name = "Dupe", Image = "rbxassetid://125500743878117" }),
+    Auto = tabGroups.Main:Tab({ Name = "Auto", Image = "rbxassetid://77921041630429" }),
+    Scripts = tabGroups.Extra:Tab({ Name = "Scripts", Image = "rbxassetid://102282436652317" })
+}
+
+local sections = {
+    DupeSection1 = tabs.Dupe:Section({ Side = "Left" }),
+    DupeSection2 = tabs.Dupe:Section({ Side = "Right" }),
+
+	AutoSection1 = tabs.Auto:Section({ Side = "Left" }),
+    AutoSection2 = tabs.Auto:Section({ Side = "Right" }),
+
+	ScriptsSection = tabs.Scripts:Section({ Side = "Left" }),
+}
+
+sections.DupeSection1:Input({
+	Name = "Card Number",
+	Placeholder = "1095",
+	Callback = function(Value)
+		CardNumber = Value 
+		print("CardNumber Input Value:", CardNumber) 
+	end,
+}, "CardNumber")
+
+-- Dupe Cards Toggle
+local isDupeCardToggled = false 
+
+sections.DupeSection1:Toggle({
+    Name = "Dupe Card",
+    Default = false,
+    Callback = function(state)
+        isDupeCardToggled = state
+
+        if isDupeCardToggled then
+            spawn(function()
+                while isDupeCardToggled do
+                    local cardNum = tonumber(CardNumber)
+                    if cardNum and cardNum >= 1 and cardNum <= 3000 then
+                        local remote = game:GetService("ReplicatedStorage").Remote.RemoteEvent
+                        local arguments = {
+                            [1] = "SellCard",
+                            [2] = cardNum, -- Ensure the card number is passed as a number
+                            [3] = -CardAmount
+                        }
+                        
+                        remote:FireServer(unpack(arguments))
+                    else
+						wait(5)
+                        print("Didn't work, you put a false number in dumbass.")
+                    end
+                    wait(DupeDelay)
+                end
+            end)
+        else
+			wait(0.000001)
+            --print("Dupe Card (Auto) toggled off. Stopping loop.")
+        end
+    end,
+}, "DupeCards")
+
+sections.DupeSection1:Slider({
+	Name = "Dupe Amount",
+	Default = 1,
+	Minimum = 10,
+	Maximum = 1,
+	DisplayMethod = "Value",
+	Precision = 0,
+	Callback = function(Value)
+		CardAmount = Value
+	end
+}, "CardAmount")
+
+sections.DupeSection1:Slider({
+	Name = "Duping Delay",
+	Default = 0.1,
+	Minimum = 0.1,
+	Maximum = 1,
+	DisplayMethod = "Value",
+	Precision = 0,
+	Callback = function(Value)
+		DupeDelay = Value
+	end
+}, "DupeDelay")
+
+sections.DupeSection2:Paragraph({
+	Header = "👅 👑How to DUPE ⁉️ 💯 🥶",
+	Body = "Go to the 'Packs' game tab, While in there under each of the cards names there is a number. (Ex: #1000) Input the same number in 'Card Number'. "
+})
+sections.DupeSection2:Paragraph({
+	Header = " 💯 IMPORTANT NOTE! ⁉️ ",
+	Body = "MAKE SURE YOU EDIT THE DUPE AMOUNT BEFORE ACTUALLY DUPING OR IT WILL SELL THE CARD YOU WANNA DUPE!"
+})
+
+
+------Auto Tab
+sections.AutoSection1:Button({
+    Name = "Collect Rewards",
+    Callback = function()
+        local remote = game:GetService("ReplicatedStorage").Remote.RemoteEvent
+
+        local arguments = {
+            [1] = "GetReward",
+            [2] = "TimeReward",
+            [3] = 1 -- (1-6)
+        }
+        
+        remote:FireServer(unpack(arguments))
+        wait(0.2)
+        local remote = game:GetService("ReplicatedStorage").Remote.RemoteEvent
+
+        local arguments = {
+            [1] = "GetReward",
+            [2] = "TimeReward",
+            [3] = 2 -- (1-6)
+        }
+        
+        remote:FireServer(unpack(arguments))
+        wait(0.2)
+        local remote = game:GetService("ReplicatedStorage").Remote.RemoteEvent
+
+        local arguments = {
+            [1] = "GetReward",
+            [2] = "TimeReward",
+            [3] = 3 -- (1-6)
+        }
+        
+        remote:FireServer(unpack(arguments))
+        wait(0.2)
+        local remote = game:GetService("ReplicatedStorage").Remote.RemoteEvent
+
+        local arguments = {
+            [1] = "GetReward",
+            [2] = "TimeReward",
+            [3] = 4 -- (1-6)
+        }
+        
+        remote:FireServer(unpack(arguments))
+        wait(0.2)
+        local remote = game:GetService("ReplicatedStorage").Remote.RemoteEvent
+
+        local arguments = {
+            [1] = "GetReward",
+            [2] = "TimeReward",
+            [3] = 5 -- (1-6)
+        }
+        
+        remote:FireServer(unpack(arguments))
+        wait(0.2)
+        local remote = game:GetService("ReplicatedStorage").Remote.RemoteEvent
+
+        local arguments = {
+            [1] = "GetReward",
+            [2] = "TimeReward",
+            [3] = 6 -- (1-6)
+        }
+        
+        remote:FireServer(unpack(arguments))
+    end,
+})
+
+local isAutoCollectToggled = false -- Tracks the toggle state
+
+-- Function to check if the reward is available
+local function isRewardAvailable(taskId)
+    local remoteFunction = game:GetService("ReplicatedStorage").Remote.RemoteFunction
+
+    local arguments = {
+        [1] = "GetPlayerCacheData",
+        [2] = "TaskReward"
+    }
+
+    local results = remoteFunction:InvokeServer(unpack(arguments))
+    -- Check if the task ID is available in the results
+    return results and results[taskId] and results[taskId].Available
+end
+
+-- Function to collect the reward
+local function collectReward(taskId)
+    local remoteEvent = game:GetService("ReplicatedStorage").Remote.RemoteEvent
+
+    local arguments = {
+        [1] = "GetReward",
+        [2] = "TaskReward",
+        [3] = taskId
+    }
+
+    remoteEvent:FireServer(unpack(arguments))
+end
+
+-- Toggle for Auto Collect
+sections.AutoSection1:Toggle({
+    Name = "Auto Collect Quests",
+    Default = false,
+    Callback = function(value)
+        isAutoCollectToggled = value 
+        if isAutoCollectToggled then
+            spawn(function()
+                while isAutoCollectToggled do
+                    local taskIds = {"1001, 1003, 1002, 1004, 1005, 1006"}
+                    for _, taskId in ipairs(taskIds) do
+                        if isRewardAvailable(taskId) then
+                            collectReward(taskId)
+                        end
+                    end
+                    wait(1)
+                end
+            end)
+        else
+            print("fuck")
+        end
+    end,
+}, "AutoCollectQuest")
+
+
+
+
+
+local isAutoDrawToggled = false 
+sections.AutoSection2:Toggle({
+    Name = "Auto Draw (Fast)",
+    Default = false,
+    Callback = function(value)
+        isAutoDrawToggled = value 
+
+
+        if isAutoDrawToggled then
+            spawn(function()
+                while isAutoDrawToggled do
+
+                    local remote = game:GetService("ReplicatedStorage").Remote.RemoteEvent
+
+                    local arguments = {
+                        [1] = "DrawCard",
+                        [2] = true
+                    }
+
+                    remote:FireServer(unpack(arguments))
+
+                    local remote = game:GetService("ReplicatedStorage").Remote.RemoteFunction
+
+                    local arguments = {
+                        [1] = "GetPlayerCacheData",
+                        [2] = "timeReward"
+                    }
+                    
+                    local results = remote:InvokeServer(unpack(arguments))
+
+                    wait(0.1) -- Add a small delay to control the loop speed
+                end
+            end)
+        else
+            print("Auto Draw (Fast) toggled off. Stopping loop.")
+        end
+    end,
+}, "AutoDraw")
+
+sections.AutoSection2:Toggle({
+    Name = "Auto Floor (x10)",
+    Default = false,
+    Callback = function(value)
+        isAutoFloorToggled = value 
+
+
+        if isAutoFloorToggled then
+            spawn(function()
+                while isAutoFloorToggled do
+                    local remote = game:GetService("ReplicatedStorage").Remote.RemoteEvent
+
+                    local arguments = {
+                        [1] = "ChallengeFloor"
+                    }
+                    
+                    remote:FireServer(unpack(arguments))
+                    wait(0.0000000001) 
+                end
+            end)
+        else
+            print("Auto Floor toggled off. Stopping loop.")
+        end
+    end,
+}, "AutoFloor")
+
+
+
+
+
+
+
+
+
+
+-- Scripts Tab (Additional functionality if needed)
+sections.ScriptsSection:Button({
+	Name = "Infinite Yield",
+	Callback = function()
+		loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+	end,
+})
+sections.ScriptsSection:Button({
+	Name = "Remote Spy",
+	Callback = function()
+		loadstring(game:HttpGetAsync("https://github.com/richie0866/remote-spy/releases/latest/download/RemoteSpy.lua"))()
+
+	end,
+})
+sections.ScriptsSection:Button({
+	Name = "Copy Position",
+	Callback = function()
+        local XYZ = tostring(game.Players.LocalPlayer.Character.HumanoidRootPart.Position)
+        setclipboard("game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(" .. XYZ .. ")")
+	end,
+})
+
