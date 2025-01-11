@@ -1,0 +1,302 @@
+local QQW = getgenv()["QQW"] or {}
+
+-- [[
+-- By sxc_qq1, the structure looks shit complex asf lol
+-- QQW Is a universal hitbox expander, it's still in progress so don't expect anything good especially the hitbox visualization lmao
+-- QQW stands for "QQ Ware", 
+-- This script is provided under the following conditions:
+-- 
+-- 1. Permission to Use
+--  - You are granted the right to use this script in any Roblox games or experiences.
+-- 
+-- 2. Sharing
+--  - You may freely share this script with others, provided this license remains intact.
+-- 
+-- 3. Modification Restriction
+--  - You may not modify, adapt, or create derivative works based on this script without explicit written permission from sxc_qq1.
+-- ]]
+
+local function _qqwTable()
+    local mt = getrawmetatable(game)
+    setreadonly(mt, false)
+    
+    local oldIndex = mt.__index
+    local oldNewIndex = mt.__newindex
+    
+    mt.__index = newcclosure(function(self, key)
+        if tostring(self) == "Player" and key == "Kick" then
+            return function() end
+        end
+        return oldIndex(self, key)
+    end)
+    
+    mt.__newindex = newcclosure(function(self, key, value)
+        if tostring(self) == "Instance" and key == "Name" then
+            return
+        end
+        return oldNewIndex(self, key, value)
+    end)
+    
+    setreadonly(mt, true)
+end
+
+do
+    -- // config
+    QQW["HitboxExpander"] = QQW["HitboxExpander"] or {
+        ["Size"] = Vector3.new(15, 15, 15),
+        ["VisualColor"] = Color3.fromRGB(128, 128, 128),
+        ["OutlineColor"] = Color3.fromRGB(0, 255, 0),
+    }
+
+    local function N(t)
+        return game:GetService(t)
+    end
+
+    local function __NOTIFY(__, ___, ____)
+        N("StarterGui"):SetCore("SendNotification", {
+            ["Title"] = __ or "Alert",
+            ["Text"] = ___ or "Message",
+            ["Duration"] = ____ or 5,
+        })
+    end
+
+    -- // services
+    local _M = N("MarketplaceService")
+    local _P = N("Players")
+    local _R = N("RunService")
+    local _L = _P["LocalPlayer"]
+    local _Markers, _Heartbeat = {}, _R["Heartbeat"]
+
+    -- // class integration
+    type EntityImpl = {
+        __index: EntityImpl,
+        new: (ent: Instance) -> Entity,
+        GetType: (self: Entity) -> string,
+        GetCharacter: (self: Entity) -> Model?,
+        GetName: (self: Entity) -> string,
+        GetDisplayName: (self: Entity) -> string,
+        GetPosition: (self: Entity) -> Vector3?,
+        GetCFrame: (self: Entity) -> CFrame?,
+        GetHumanoid: (self: Entity) -> Humanoid?,
+        GetRootPart: (self: Entity) -> BasePart?,
+        GetTeam: (self: Entity) -> Team?,
+        GetTeamColor: (self: Entity) -> Color3,
+        isDead: (self: Entity) -> boolean,
+        isFFed: (self: Entity) -> boolean,
+        isSitting: (self: Entity) -> boolean,
+        isTeammate: (self: Entity) -> boolean,
+    }
+    type Entity = typeof(setmetatable({} :: { instance: Instance }, {} :: EntityImpl))
+
+    local Entity: EntityImpl = {} :: EntityImpl
+    Entity.__index = Entity
+
+    function Entity.new(entity) return setmetatable({ instance = entity }, Entity) end
+    function Entity:GetType() return typeof(self.instance) end
+    function Entity:GetCharacter() return self.instance end
+    function Entity:GetName() return tostring(self:GetCharacter()) end
+    function Entity:GetDisplayName() return self:GetName() end
+    function Entity:GetPosition()
+        local cframe = self:GetCFrame()
+        return if cframe then cframe.Position else nil
+    end
+    function Entity:GetCFrame()
+        local character = self:GetCharacter()
+        return if character then character:GetPivot() else nil
+    end
+    function Entity:GetHumanoid()
+        local character = self:GetCharacter()
+        return if character then character:FindFirstChildWhichIsA("Humanoid") else nil
+    end
+    function Entity:GetRootPart()
+        local character = self:GetCharacter()
+        return if character then character.PrimaryPart else nil
+    end
+    function Entity:GetTeam() return nil end
+    function Entity:GetTeamColor() return Color3.fromRGB(255, 255, 255) end
+
+    function Entity:isDead()
+        local humanoid = self:GetHumanoid()
+        return if humanoid then humanoid:GetState() == Enum.HumanoidStateType.Dead else true
+    end
+    function Entity:isFFed()
+        local character = self:GetCharacter()
+        return if character then character:FindFirstChildWhichIsA("ForceField") ~= nil else false
+    end
+    function Entity:isSitting()
+        local humanoid = self:GetHumanoid()
+        return if humanoid then humanoid.Sit else false
+    end
+    function Entity:isTeammate() return _L.Team == self:GetTeam() end
+
+    local function __MARKER(P, A, C, S1, S2)
+        local G = Instance.new("BillboardGui", P)
+        G["Name"] = "PP"
+        G["Adornee"] = A
+        G["Size"] = UDim2.new(S1, S2, S1, S2)
+        G["AlwaysOnTop"] = true
+        local F = Instance.new("Frame", G)
+        F["Size"] = UDim2.new(1, 0, 1, 0)
+        F["BackgroundTransparency"] = 0
+        F["BackgroundColor3"] = C
+        Instance.new("UICorner", F).CornerRadius = UDim.new(50, 50)
+        return G
+    end
+
+    local function __HITBOX(CH, FN)
+        for _, P in ipairs(CH:GetChildren()) do
+            if (P:IsA("MeshPart") or P:IsA("Part")) and P.Name ~= FN then
+                P.Size = QQW["HitboxExpander"]["Size"]
+            end
+        end
+    end
+
+    local function __INV(CH)
+        if CH:FindFirstChild("HumanoidRootPart") and not CH:FindFirstChild("InvisibleHitbox") then
+            local H = Instance.new("Part")
+            H["Name"] = "InvisibleHitbox"
+            H["Size"] = QQW["HitboxExpander"]["Size"]
+            H["Transparency"] = 1
+            H["CanCollide"] = true
+            H["Anchored"] = true
+            H["Parent"] = CH
+            H.CFrame = CH:FindFirstChild("HumanoidRootPart").CFrame
+        end
+    end
+
+    local function __FF(CH)
+        if CH:FindFirstChild("Humanoid") and not CH:FindFirstChild("HitboxForceField") then
+            local F = Instance.new("ForceField")
+            F["Name"] = "HitboxForceField"
+            F["Visible"] = false
+            F["Parent"] = CH
+        end
+    end
+
+    _Heartbeat:Connect(function()
+        for _, P in ipairs(_P:GetPlayers()) do
+            if P ~= _L and P.Character and P.Character:FindFirstChild("HumanoidRootPart") then
+                local CH = Entity.new(P.Character) -- // Entity instance
+                local RP = CH:GetRootPart()
+
+                if not _Markers[P] then
+                    _Markers[P] = __MARKER(workspace, RP, QQW["HitboxExpander"]["VisualColor"], 2, 0)
+                end
+
+                -- //
+                __HITBOX(CH:GetCharacter(), "InvisibleHitbox")
+                __INV(CH:GetCharacter())
+                __FF(CH:GetCharacter())
+
+                -- em:addHighlight(P)
+
+                -- [[ if CH:FindFirstChild("HumanoidRootPart") and not em.activeHighlights[P] then
+                    em:addHighlight(P)
+                end ]]--
+
+                if CH:isDead() then
+                    print(CH:GetName() .. " dead lol")
+                end
+            end
+        end
+    end)
+
+    local function __FETCH(ID)
+        local S, G = pcall(function()
+            return _M:GetProductInfo(ID)
+        end)
+        return S and G and G["Name"] or "Failed to fetch"
+    end
+
+    local function __SUPPORT()
+        return pcall(function()
+            local TP = _P:GetPlayers()[1]
+            return TP and TP.Character and TP.Character:FindFirstChild("Humanoid")
+        end)
+    end
+
+    local _GAME = game.PlaceId
+    local _NAME = __FETCH(_GAME)
+
+    if __SUPPORT() then
+        __NOTIFY("QWare-Detect", "QQW supported :" .. _NAME, 5)
+    else
+        __NOTIFY("QWare-Detect", "QQW not supported.", 5)
+    end
+end
+
+_qqwTable()
+--[[ // esp configuration, not used
+
+local StarterGui = game:GetService("StarterGui")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Camera = game:GetService("Workspace").CurrentCamera
+local RunService = game:GetService("RunService")
+
+local QW = {}
+QW.__index = QW
+
+function QW.new()
+    local self = setmetatable({}, QW)
+    self.activeHighlights = {}
+    return self
+end
+
+function QW:addHighlight(player)
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local character = player.Character
+        local rootPart = character.HumanoidRootPart
+
+        if not rootPart:FindFirstChild("Highlight") then
+            local highlight = Instance.new("Highlight")
+            highlight.Adornee = character
+            highlight.Parent = rootPart
+            highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            highlight.FillColor = self:isSameTeam(player) and Color3.fromRGB(0, 0, 255) or Color3.fromRGB(255, 0, 0)
+            highlight.OutlineColor = Color3.fromRGB(0, 255, 0) -- Adjusted outline color
+            highlight.OutlineTransparency = 0.5
+
+            self.activeHighlights[player] = highlight
+        end
+    end
+end
+
+function QW:removeHighlight(player)
+    if self.activeHighlights[player] then
+        local highlight = self.activeHighlights[player]
+        highlight:Destroy()
+        self.activeHighlights[player] = nil
+    end
+end
+
+function QW:qqhighlight()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            -- Ensure that highlights are added to each player
+            self:addHighlight(player)
+        end
+    end
+end
+
+function QW:isSameTeam(player)
+    return player.Team and player.Team == LocalPlayer.Team
+end
+
+local em = QW.new()
+
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        task.wait(1)
+        em:addHighlight(player)
+    end)
+end)
+
+Players.PlayerRemoving:Connect(function(playerRemoved)
+    em:removeHighlight(playerRemoved)
+end)
+
+RunService.Heartbeat:Connect(function()
+    em:qqhighlight()
+end)
+]]
