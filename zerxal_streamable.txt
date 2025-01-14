@@ -1,0 +1,620 @@
+-- basic config from monkeyvio
+
+-- resolver doesn't work
+
+-- blatant settings
+
+getgenv().Zerxal = {
+    Intro = {
+        ["Enabled"] = true, --//will pop up an intro 
+        ["LowerGraphics"] = false, --//basicly boost ur fps little bit and also will enable macro
+        ["ClearRConsole"] = false, --//only krnl function but it clears console when u use print notification
+    },
+    VisualEffects = {
+        ["ColorCorrection"] = false, --//basicly like shaders
+        ["ColorCorrectionBrightness"] = 0, --//brightness
+        ["ColorCorrectionSaturation"] = 5, --//Saturation
+        ["ColorCorrectionContrast"] = 2 --//Contrast
+    },
+    Notification = { --//notificationMode will be added soon
+        ["SilentMode"] = false, --//turns off intro, will enable clearrconsole, will turn off notificationmode and printmode and will turn off FOV
+        ["PrintMode"] = false, --// print out loading press F9 to see
+        ["NotificationMode"] = false --//will send a notifications of loading process
+    },
+}
+
+
+
+getgenv().silentaim = {
+    Silent = {
+        ["SilentToggle"] = "nil", --//toggles silent aim to be on/off 
+        ["Enabled"] = true, --//Enbles Silent Aim
+        ["AimPart"] = "HumanoidRootPart", --"Head", "UpperTorso", "HumanoidRootPart", "LowerTorso", "LeftHand", "RightHand", "LeftLowerArm", "RightLowerArm", "LeftUpperArm", "RightUpperArm", "LeftFoot", "LeftLowerLeg",  "LeftUpperLeg", "RightLowerLeg", "RightFoot",  "RightUpperLeg"
+        ["Prediction"] = 0.143628, --//Velocity Prediction of opponent
+        ["UseHitchance"] = false, --//Turns on Hitchance
+        ["HitChance"] = 100, --//Value Of Hitchance but i recommend 100
+        ["ClosestPart"] = false, --//Turns On ClosestPartToMouse
+        ["ClosestPoint"]  = false, --//Turns On ClosestPointToMouse
+        ["Resolver"] = false, --//Turns On Resolver that doesnt break ur pred and resolves everything that legit aim can
+        ["AntiCurve"] = false, --//When Someone will be clipping you, youre Curves Of Silentaim evidence wont be able to be seen
+        ["AntiAimView"] = true, --//When Someone tries to catch u with Aim Viewer theyre Tracer of it gets confussion like u would use legit aim
+        ["AntiGroundShots"] = true, --//Tries to prevent groundshots if possible
+        ["AutoPrediction"] = false, --//Will turn on automatic auto prediction that doesnt require sets to be putten inside
+        ["CustomAutoPrediction"] = false, --//Will turn on automatic autoprediction that will require own sets from table that is down there
+        ["CustomAutoPredictionDelay"] = 2 --//Puts delays in automatic prediction changes
+    },
+    FOV = {
+        ["Visible"] = true, --//Turns on a circle on ur screen that follows ur mouse
+        ["Radius"] = 40, --//Size of circle
+        ["Color1"] = Color3.new(255, 255, 255) --//Color of circle
+    },
+
+    Camera = {
+        ["CameraToggle"] = "Q", --//Keybind to Make ur camera follows opponent
+        ["Enabled"] = true, --//enables camera lock 
+        ["AimPart"] = "HumanoidRootPart", --//AimPart for Camera to be focused on
+        ["Prediction"] = 5.24, --// Prediction of Velocity on opponent 1-10
+        ["SmoothnessValue"] = 0.004, --//Smoothness Value that makes ur camera smoothly goes on ur opponent
+        ["Smoothness"] = true, --//Enables Smoothness that makes ur camera smooth
+        ["CameraClosestPart"] = false, --//Makes Ur AimPart be the ClosestOneToCursor
+        ["CameraRadius"] = false, --// FOV size to focus on  who to stick
+        ["ShowFOV"] = false, --//Turns On FOV
+        ["Radius"] = 150, --//FOV size
+        ["Shake"] = false, --// turns on shake that makes ur camera not be focused so much
+        ["ShakeAgressivness"] = 10 --//agressivness of the shake  1-10
+    },
+
+    Checks = {
+        ["WallCheck"] = true,
+        ["UnlockedOnDeath"] = false, --//focus on targetting other opponent when u Kill ur opponent
+        ["GrabbedCheck"] = true, --//prevemts Grabbed player on ground to be focused by silent aim
+        ["KnockedCheck"] = true, --//prevemts Knocked player on ground to be focused by silent aim
+        ["CrewCheck"] = true --//Prevents silentaim focusing on ur crew members
+    },
+}
+
+local predictionValues = { --Custom autoprediction table 
+    { pingThreshold = 130, predictionValue = 0.151 },
+    { pingThreshold = 125, predictionValue = 0.149 },
+    { pingThreshold = 110, predictionValue = 0.146 },
+    { pingThreshold = 105, predictionValue = 0.138 },
+    { pingThreshold = 90, predictionValue = 0.136 },
+    { pingThreshold = 80, predictionValue = 0.134 },
+    { pingThreshold = 70, predictionValue = 0.1437 },
+    { pingThreshold = 60, predictionValue = 0.14329 },
+    { pingThreshold = 50, predictionValue = 0.1298 },
+    { pingThreshold = 40, predictionValue = 0.1211 }
+}
+
+
+
+repeat wait() until game:IsLoaded()
+
+if Zerxal.Notification.PrintMode == true then
+    print("[Zerxal]: is loading..")
+    wait(3)
+    print("[Zerxal]: have successfully bypassed Anti Cheat..")
+    wait(2)
+    print("[Zerxal]: Loading Functions..")
+    wait(3.5)
+    print(" [Zerxal]: Has been successfully loaded, Enjoy your gameplay.")
+end
+--//bypass
+assert(getrawmetatable)
+grm = getrawmetatable(game)
+setreadonly(grm, false)
+old = grm.__namecall
+grm.__namecall = newcclosure(function(self, ...)
+    local args = {...}
+    if tostring(args[1]) == "TeleportDetect" then
+        return
+    elseif tostring(args[1]) == "CHECKER_1" then
+        return
+    elseif tostring(args[1]) == "CHECKER" then
+        return
+    elseif tostring(args[1]) == "GUI_CHECK" then
+        return
+    elseif tostring(args[1]) == "OneMoreTime" then
+        return
+    elseif tostring(args[1]) == "checkingSPEED" then
+        return
+    elseif tostring(args[1]) == "BANREMOTE" then
+        return
+    elseif tostring(args[1]) == "PERMAIDBAN" then
+        return
+    elseif tostring(args[1]) == "KICKREMOTE" then
+        return
+    elseif tostring(args[1]) == "BR_KICKPC" then
+        return
+    elseif tostring(args[1]) == "BR_KICKMOBILE" then
+        return
+    end
+    return old(self, ...)
+end)
+--//bypass
+
+local silentaim = getgenv().silentaim
+local Zerxal = getgenv().Zerxal
+if Zerxal.Notification.SilentMode == true then
+    Zerxal.Notification.PrintMode = false
+    Zerxal.Notification.NotificationMode = false
+    Zerxal.Intro.ClearRConsole = true
+    Zerxal.Intro.Enabled = false
+    silentaim.FOV.Visible = false
+    silentaim.Camera.ShowFOV = false
+end
+
+
+
+
+local lala = game.Players.LocalPlayer
+local displayName = lala.DisplayName
+
+
+if game:IsLoaded() and Zerxal.Intro.Enabled == true then
+local ShowIntro = true
+
+local TweenService = game:GetService("TweenService")
+
+local Blur = Instance.new("BlurEffect", game.Lighting)
+
+local ScreenGui = Instance.new("ScreenGui")
+
+local ImageLabel = Instance.new("ImageLabel")
+
+Blur.Size = 0
+
+
+
+if ShowIntro then
+
+    ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    ImageLabel.Parent = ScreenGui
+    ImageLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    ImageLabel.BackgroundTransparency = 1.000
+    ImageLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    ImageLabel.BorderSizePixel = 0
+    ImageLabel.Position = UDim2.new(0.327774882, 0, 0.316960156, 0)
+    ImageLabel.Size = UDim2.new(0, 661, 0, 394)
+    ImageLabel.Image = "http://www.roblox.com/asset/?id=14685360180"
+    ImageLabel.ImageTransparency = 1.000
+
+    local tweenStart = TweenService:Create(Blur, TweenInfo.new(0.70), {Size = 24})
+    local tweenStart1 = TweenService:Create(ImageLabel, TweenInfo.new(0.70), {ImageTransparency = 0})
+    
+    tweenStart:Play()
+    tweenStart1:Play()
+
+    task.wait(7)
+
+    local tweenEnd = TweenService:Create(Blur, TweenInfo.new(0.80), {Size = 0})
+    local tweenEnd1 = TweenService:Create(ImageLabel, TweenInfo.new(0.80), {ImageTransparency = 1})
+    
+    tweenEnd:Play()
+    tweenEnd1:Play()
+
+    task.wait(1)
+
+    Blur:Remove()
+    ScreenGui:Remove()
+end
+else
+end
+
+
+
+if not LPH_OBFUSCATED then
+    LPH_JIT_MAX = function(...)
+        return (...)
+    end
+    LPH_NO_VIRTUALIZE = function(...)
+        return (...)
+    end
+end
+
+LPH_JIT_MAX(
+    function()
+        local Players, Client, Mouse, RS, Camera, r =
+            game:GetService("Players"),
+            game:GetService("Players").LocalPlayer,
+            game:GetService("Players").LocalPlayer:GetMouse(),
+            game:GetService("RunService"),
+            game.Workspace.CurrentCamera,
+            math.random
+
+            local Circle = Drawing.new("Circle")
+            Circle.Color =  silentaim.FOV.Color1
+            Circle.Transparency = 1
+            Circle.Thickness = 0.5
+          
+            local CameraCircle = Drawing.new("Circle")
+            CameraCircle.Color = silentaim.FOV.Color1
+            CameraCircle.Thickness = 1
+    
+
+        local ttarget
+        local ttargetrey2
+        local On
+
+        local Vec2 = function(property)
+            return Vector2.new(property.X, property.Y + (game:GetService("GuiService"):GetGuiInset().Y))
+        end
+
+            local UpdateSilentFOV = function()
+                if not Circle then
+                    return Circle
+                end
+                Circle.Visible = getgenv().silentaim.FOV["Visible"]
+                Circle.Radius = getgenv().silentaim.FOV["Radius"] * 3.05
+                Circle.Position = Vec2(Mouse)
+    
+                return Circle
+            end
+    
+            local UpdateCameraFOV = function()
+                if not CameraCircle then
+                    return CameraCircle
+                end
+    
+                CameraCircle.Visible = getgenv().silentaim.Camera["ShowFOV"]
+                CameraCircle.Radius = getgenv().silentaim.Camera["Radius"]
+                CameraCircle.Position = Vec2(Mouse)
+    
+                return CameraCircle
+            end
+    
+            game.RunService.RenderStepped:Connect(function ()
+                UpdateCameraFOV()
+                UpdateSilentFOV()
+            end)
+            
+            
+local function WallCheck(destination, ignore)
+    if getgenv().silentaim.Checks.WallCheck then
+        local Origin = Camera.CFrame.p
+        local CheckRay = Ray.new(Origin, destination - Origin)
+        local Hit = game.workspace:FindPartOnRayWithIgnoreList(CheckRay, ignore)
+        return Hit == nil
+    else
+        return true
+    end
+end
+    
+    
+            GetClosestToMouse = function()
+                local Target, Closest = nil, 1 / 0
+    
+                for _, v in pairs(Players:GetPlayers()) do
+                    if (v.Character and v ~= Client and v.Character:FindFirstChild("HumanoidRootPart")) then
+                        local Position, OnScreen = Camera:WorldToScreenPoint(v.Character.HumanoidRootPart.Position)
+                        local Distance = (Vector2.new(Position.X, Position.Y) - Vector2.new(Mouse.X, Mouse.Y)).Magnitude
+    
+                        if
+                            (Circle.Radius > Distance and Distance < Closest and OnScreen and
+                                WallCheck(v.Character.HumanoidRootPart.Position, {Client, v.Character}))
+                         then
+                            Closest = Distance
+                            Target = v
+                        end
+                    end
+                end
+                return Target
+            end
+    
+
+
+
+
+
+
+        function TargetChecks(Target)
+            if getgenv().silentaim.Checks.UnlockedOnDeath == true and Target.Character then
+                return Target.Character.BodyEffects["K.O"].Value and true or false
+            end
+            return false
+        end
+
+        function PredictionictTargets(Target, Value)
+            return Target.Character[getgenv().silentaim.Silent.AimPart].CFrame +
+                (Target.Character[getgenv().silentaim.Silent.AimPart].Velocity * Value)
+        end
+
+        local WTS = function(Object)
+            local ObjectVector = Camera:WorldToScreenPoint(Object.Position)
+            return Vector2.new(ObjectVector.X, ObjectVector.Y)
+        end
+
+        local IsOnScreen = function(Object)
+            local IsOnScreen = Camera:WorldToScreenPoint(Object.Position)
+            return IsOnScreen
+        end
+
+        local FilterObjs = function(Object)
+            if string.find(Object.Name, "Gun") then
+                return
+            end
+            if table.find({"Part", "MeshPart", "BasePart"}, Object.ClassName) then
+                return true
+            end
+        end
+        GetClosestBodyPart = function(character)
+            local ClosestDistance = 1 / 0
+            local BodyPart = nil
+            if (character and character:GetChildren()) then
+                for _, x in next, character:GetChildren() do
+                    if FilterObjs(x) and IsOnScreen(x) then
+                        local Distance = (WTS(x) - Vector2.new(Mouse.X, Mouse.Y)).Magnitude
+                        if getgenv().silentaim.Camera.CameraRadius == true then
+                            if (CameraCircle.Radius > Distance and Distance < ClosestDistance) then
+                                ClosestDistance = Distance
+                                BodyPart = x
+                            end
+                        else
+                            if (Distance < ClosestDistance) then
+                                ClosestDistance = Distance
+                                BodyPart = x
+                            end
+                        end
+                    end
+                end
+            end
+            return BodyPart
+        end
+
+        Mouse.KeyDown:Connect(
+            function(Key)
+                if (Key == getgenv().silentaim.Camera.CameraToggle:lower()) then
+                    if getgenv().silentaim.Camera.Enabled == true then
+                        On = not On
+                        if On then
+                            ttarget2 = GetClosestToMouse()
+                        else
+                            if ttarget2 ~= nil then
+                                ttarget2 = nil
+                            end
+                        end
+                    end
+                end
+                if (Key == getgenv().silentaim.Silent.SilentToggle:lower()) then
+                    if getgenv().silentaim.Silent.Enabled == true then
+                        getgenv().silentaim.Silent.Enabled = false
+                    else
+                        getgenv().silentaim.Silent.Enabled = true
+                    end
+                end
+            end
+        )
+
+        RS.RenderStepped:Connect(
+            function()
+                if ttarget then
+                    if ttarget ~= nil and getgenv().silentaim.Silent.Enabled and getgenv().silentaim.Silent.ClosestPart == true then
+                        getgenv().silentaim.Silent["AimPart"] = tostring(GetClosestBodyPart(ttarget.Character))
+                    end
+                end
+                if ttarget2 then
+                    if
+                        ttarget2 ~= nil and not TargetChecks(ttarget2) and getgenv().silentaim.Camera.Enabled and
+                            getgenv().silentaim.Camera.CameraClosestPart == true
+                     then
+                        getgenv().silentaim.Camera["AimPart"] = tostring(GetClosestBodyPart(ttarget2.Character))
+                    end
+                end
+            end
+        )
+
+        local CameraPredictioniction = function(Target, Value)
+            return Target.Character[getgenv().silentaim.Camera.AimPart].Position +
+                (Target.Character[getgenv().silentaim.Camera.AimPart].Velocity / Value)
+        end
+
+        RS.RenderStepped:Connect(
+            function()
+                if
+                    ttarget2 ~= nil and not TargetChecks(ttarget2) and getgenv().silentaim.Camera.Enabled and
+                        getgenv().silentaim.Camera.Smoothness == true
+                 then
+                    local Main = CFrame.new(Camera.CFrame.p, CameraPredictioniction(ttarget2, getgenv().silentaim.Camera.Prediction))
+                    Camera.CFrame =
+                        Camera.CFrame:Lerp(
+                        Main,
+                        getgenv().silentaim.Camera.SmoothnessValue,
+                        Enum.EasingStyle.Elastic,
+                        Enum.EasingDirection.InOut,
+                        Enum.EasingStyle.Sine,
+                        Enum.EasingDirection.Out
+                    )
+                elseif ttarget2 ~= nil and getgenv().silentaim.Camera.Enabled and getgenv().silentaim.Camera.Smoothness == false then
+                    Camera.CFrame =
+                        CFrame.new(Camera.CFrame.Position, CameraPredictioniction(ttarget2, getgenv().silentaim.Camera.Prediction))
+                end
+            end
+        )
+
+        local grmt = getrawmetatable(game)
+        local index = grmt.__index
+        local properties = {
+            "Hit" -- Ill Add more Mouse properties soon,
+        }
+        setreadonly(grmt, false)
+
+        grmt.__index =
+            newcclosure(
+            function(self, v)
+                if Mouse and (table.find(properties, v)) then
+                    ttarget = GetClosestToMouse()
+                    if ttarget ~= nil and getgenv().silentaim.Silent.Enabled and not TargetChecks(ttarget) then
+                        local endpoint = PredictionictTargets(ttarget, getgenv().silentaim.Silent.Prediction)
+
+                        return (table.find(properties, tostring(v)) and endpoint)
+                    end
+                end
+                return index(self, v)
+            end
+        )
+    end
+)()
+
+function AntiCurve()
+    local character = game.Players.LocalPlayer.Character
+    if silentaim.Silent.AntiCurve and character and silentaim.Silent.Enabled and character.PrimaryPart then
+        local characterCf = character.PrimaryPart.CFrame
+        local target = ttarget.Character.HumanoidRootPart
+        local targetPos = ttarget.Position
+        local charPos = character.PrimaryPart.Position
+        character:SetPrimaryPartCFrame(CFrame.lookAt(charPos, v3(targetPos.X, charPos.Y, targetPos.Z)))
+        wait()
+        character:SetPrimaryPartCFrame(characterCf)
+    end
+end
+
+local function AntiGroundShots()
+	if self ~= nil and silentaim.Silent.AntiGroundShots and self.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall then
+			local currentvelocity = self.Character.HumanoidRootPart.Velocity
+			self.Character.HumanoidRootPart.Velocity = Vector3.new(currentvelocity.X, currentvelocity.Y / 0.5, currentvelocity.Z)
+	end
+end
+
+local function getClosestPointOnPart(Part)
+    local mouseray = Local.Mouse.UnitRay
+    mouseray = mouseray.Origin + (mouseray.Direction * (Part.Position - mouseray.Origin).Magnitude)
+    local point =
+        (mouseray.Y >= (Part.Position - Part.Size / 2).Y and mouseray.Y <= (Part.Position + Part.Size / 2).Y) and
+            (Part.Position + Vector3.new(0, -Part.Position.Y + mouseray.Y, 0)) or Part.Position
+    local check = RaycastParams.new()
+    check.FilterType = Enum.RaycastFilterType.Whitelist
+    check.FilterDescendantsInstances = {Part}
+    local ray = Services.Workspace:Raycast(mouseray, (point - mouseray), check)
+    if ray then
+        return ray.Position
+    else
+        return Local.Mouse.Hit.Position
+    end
+end
+
+local function getPingBasedPrediction()
+	if silentaim.Silent.AutoPrediction then
+		local ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()
+		local calculatedPrediction = (((ping - 0) / 200) * (0.2 - 0.1)) + 0.1
+		return silentaim.Silent.Prediction + calculatedPrediction
+	else
+		return silentaim.Silent.Prediction
+	end
+end
+
+if Zerxal.VisualEffects.AspectRatio == true then
+
+end
+
+if Zerxal.VisualEffects.ColorCorrection == true then
+
+local l = game:GetService("Lighting")
+
+local ColorCorrection = Instance.new("ColorCorrectionEffect", l)
+ColorCorrection.Brightness = Zerxal.VisualEffects.ColorCorrectionBrightness
+ColorCorrection.Contrast = Zerxal.VisualEffects.ColorCorrectionContrast
+ColorCorrection.Saturation = Zerxal.VisualEffects.ColorCorrectionSaturation 
+end
+
+
+
+
+local switchDelay = silentaim.Silent.CustomAutoPredictionDelay 
+
+while wait() do
+    if silentaim.Silent.CustomAutoPrediction == true then
+        local pingValue = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
+        local split = string.split(pingValue, '(')
+        local ping = tonumber(split[1])
+
+        local newPrediction = silentaim.Silent.Prediction
+        for _, predictionData in ipairs(predictionValues) do
+            if ping < predictionData.pingThreshold then
+                newPrediction = predictionData.predictionValue
+                break
+            end
+        end
+
+        if silentaim.Silent.Prediction ~= newPrediction then
+            silentaim.Silent.Prediction = newPrediction
+            wait(switchDelay)
+        end
+    end
+end
+
+if Zerxal.Intro.LowerGraphics then
+    for _,v in pairs(workspace:GetDescendants()) do
+        if v.ClassName == "Part"
+        or v.ClassName == "SpawnLocation"
+        or v.ClassName == "WedgePart"
+        or v.ClassName == "Terrain"
+        or v.ClassName == "MeshPart" then
+        v.Material = "Plastic"
+        end
+        end
+else
+end
+
+if silentaim.Silent.UseHitchance and silentaim.Silent.Enabled and target then
+    local function CalculateHitchance()
+        local targetPosition = game.Workspace:FindFirstChild(silentaim.Silent.AimPart).Position
+        local aimingPosition = Vector3.new(0, 0, 0)
+        local distance = (targetPosition - aimingPosition).Magnitude
+        local maxDistance = 10
+        local baseHitchance = 100 - (distance / maxDistance) * 10
+        baseHitchance = math.clamp(baseHitchance, 0, 100)
+        local hitchance = baseHitchance * (silentaim.Silent.HitChance / 100)
+        return hitchance
+    end
+    
+    local hitchance = CalculateHitchance()
+end
+if silentaim.Silent.Resolver and ttarget and silentaim.Silent.Enabled then
+    game:GetService("RunService").Stepped:Connect(function()
+        if ttarget and silentaim.Silent.Resolver == true then 
+            local character = ttarget.Character.HumanoidRootPart
+            local lastPosition = character.Position
+            wait()
+            local currentPosition = character.Position
+            local velocity = (currentPosition - lastPosition) * 44
+            lastPosition = currentPosition
+            
+            character.Velocity = velocity
+        end
+    end)
+end
+
+if Zerxal.Intro.ClearRConsole == true then
+rconsoleclear()
+end
+
+--//anti aim view
+--//anti aim view
+if silentaim.Silent.AntiAimView == true then
+    if ttarget then
+        local a = math.huge
+        local b = nil
+
+        for i, v in pairs(game.Players:GetPlayers()) do
+            if v ~= Client and v.Character and v.Character:FindFirstChild("Head") and v.Character:FindFirstChild("HumanoidRootPart") then
+                local c = game.Workspace.CurrentCamera:WorldToViewportPoint(v.Character.Head.Position)
+                local d = (Vector2.new(Mouse.X, Mouse.Y) - Vector2.new(c.X, c.Y)).Magnitude
+                if a > d then
+                    b = v
+                    a = d
+                end
+            end
+        end
+
+        return b
+    elseif ttarget == nil then
+        wait()
+    end
+end
+
+if getgenv().silentaim.Silent.ClosestPoint and ttarget and getgenv().silentaim.Silent.Enabled then
+getgenv().silentaim.Silent.Aimpart = tostring(
+    getClosestPartToCursor(ttarget, getgenv().silentaim.Silent))
+ac = ClosestPoint(ttarget[getgenv().silentaim.Silent.Aimpart])
+end
+
