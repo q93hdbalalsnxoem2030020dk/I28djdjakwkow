@@ -1,0 +1,77 @@
+if (not game:IsLoaded()) then game.Loaded:Wait() end -- game loaded sanity check >~<
+
+--\\ Services
+local Players      = game:GetService('Players');
+local RunService   = game:GetService('RunService');
+local Workspace    = game:GetService('Workspace');
+local Storage      = game:GetService('ReplicatedStorage');
+local InputService = game:GetService('UserInputService');
+
+--\\ Variables
+local Client = Players.LocalPlayer;
+local Camera = Workspace.CurrentCamera;
+local Remote = Storage:FindFirstChild('MainEvent');
+
+local Target;
+
+--\\ Table & Modules
+local Settings = {Enabled = true, FoV = {Visible = true, Size = 200}};
+
+local DrawingCircle = Drawing.new('Circle'); do
+    DrawingCircle.Visible = Settings.FoV.Visible
+    DrawingCircle.Radius  = Settings.FoV.Size
+    DrawingCircle.Color   = Color3.fromRGB(255, 0, 0)
+    DrawingCircle.Filled  = false
+end
+
+--\\ Functions
+local function UpdateFoV()
+    DrawingCircle.Visible  = Settings.FoV.Visible
+    DrawingCircle.Radius   = Settings.FoV.Size
+    DrawingCircle.Position = InputService:GetMouseLocation()
+end
+
+local function GetClosestPlayer(Radius)
+    local Distance, Player = Radius
+
+    for Index, Value in pairs(Players:GetPlayers()) do
+        if (Value == Client) then continue end
+
+        local Character = Value.Character
+        local RootPart  = Character and Character:FindFirstChild('HumanoidRootPart')
+
+        if (not RootPart) then continue end
+
+        local Position, OnScreen = Camera:WorldToViewportPoint(RootPart.Position)
+        local Magnitude = (Vector2.new(Position.X, Position.Y) - InputService:GetMouseLocation()).Magnitude
+
+        if Magnitude > Distance then continue end
+
+        if OnScreen then
+            Distance = Magnitude
+            Player = Value
+        end
+    end
+
+    return Player
+end
+
+local function RenderStepped()
+    UpdateFoV()
+    Target = GetClosestPlayer(Settings.FoV.Size)
+end
+
+--\\ Connections
+RunService.RenderStepped:Connect(RenderStepped)
+
+--\\ Hooks
+local namecall; namecall = hookmetamethod(game, '__namecall', function(self, ...)
+    local Arguments, Method = {...}, getnamecallmethod()
+
+    if (not checkcaller() and Settings.Enabled and Target and Method == 'FireServer' and self == Remote and Arguments[1] == 'UpdateMousePos') then 
+        Arguments[2] = Target.Character.HumanoidRootPart.Position + (Target.Character.HumanoidRootPart.Velocity * 0.129)
+        return namecall(self, unpack(Arguments))
+    end
+
+    return namecall(self, ...)
+end)
