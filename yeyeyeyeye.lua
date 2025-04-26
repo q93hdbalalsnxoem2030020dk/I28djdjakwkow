@@ -127,31 +127,55 @@ local function setupSounds(car)
         soundPart.Position = primaryPart.Position + primaryPart.CFrame.LookVector * 3
     end
 
+    -- Updated V12 engine sound ID - more prominent V12 sound
     sounds.engine = Instance.new("Sound")
     sounds.engine.Name = "EngineSound"
-    sounds.engine.SoundId = "rbxassetid://8600047841"
+    sounds.engine.SoundId = "rbxassetid://9114192565" -- V12 engine sound ID
     sounds.engine.EmitterSize = 20
     sounds.engine.RollOffMode = Enum.RollOffMode.InverseTapered
     sounds.engine.RollOffMaxDistance = 100
     sounds.engine.RollOffMinDistance = 5
-    sounds.engine.Volume = 50
+    sounds.engine.Volume = 2 -- Reduced from 50 to more reasonable level
     sounds.engine.Looped = true
+    sounds.engine.PlaybackSpeed = 0.8 -- Slightly lower pitch for deeper sound
     sounds.engine.Parent = soundPart
 
+    -- Updated supercharger sound ID
     sounds.supercharger = Instance.new("Sound")
     sounds.supercharger.Name = "SuperchargerSound"
-    sounds.supercharger.SoundId = "rbxassetid://5950059022"
+    sounds.supercharger.SoundId = "rbxassetid://138080021" -- Better supercharger whine
     sounds.supercharger.EmitterSize = 15
     sounds.supercharger.RollOffMode = Enum.RollOffMode.InverseTapered
     sounds.supercharger.RollOffMaxDistance = 80
     sounds.supercharger.RollOffMinDistance = 3
-    sounds.supercharger.Volume = 30
+    sounds.supercharger.Volume = 0.5 -- Reduced from 30 to more reasonable level
     sounds.supercharger.Looped = true
     sounds.supercharger.Parent = soundPart
 
+    -- Make sure both sounds play and can be heard
     if engineActive then
+        -- Use PlayOnRemove = false to prevent issues when destroying sounds
+        sounds.engine.PlayOnRemove = false
+        sounds.supercharger.PlayOnRemove = false
+        
+        -- Add a small delay between playing sounds to prevent audio clipping
         sounds.engine:Play()
-        sounds.supercharger:Play()
+        delay(0.1, function()
+            if sounds.supercharger and sounds.supercharger.Parent then
+                sounds.supercharger:Play()
+            end
+        end)
+        
+        -- Set up DistanceEffect for better sound falloff
+        local distanceEffect = Instance.new("DistortionSoundEffect")
+        distanceEffect.Level = 0.1
+        distanceEffect.Parent = sounds.engine
+        
+        local eqEffect = Instance.new("EqualizerSoundEffect")
+        eqEffect.HighGain = 2
+        eqEffect.MidGain = 1
+        eqEffect.LowGain = 3 -- Emphasize bass for engine sound
+        eqEffect.Parent = sounds.engine
     end
 end
 
